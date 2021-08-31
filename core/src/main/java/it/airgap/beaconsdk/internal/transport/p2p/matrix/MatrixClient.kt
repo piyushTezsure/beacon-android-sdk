@@ -120,7 +120,11 @@ internal class MatrixClient(
     suspend fun sync(): InternalResult<MatrixSync> =
         flatTryResult {
             withAccessToken("sync") { accessToken ->
-                eventService.sync(accessToken, store.state().syncToken, store.state().pollingTimeout)
+                eventService.sync(
+                    accessToken,
+                    store.state().syncToken,
+                    store.state().pollingTimeout
+                )
                     .map { MatrixSync.fromSyncResponse(it) }
             }
         }
@@ -135,8 +139,10 @@ internal class MatrixClient(
             when (it) {
                 is Success -> onSyncSuccess(it.value)
                 is Failure -> onSyncError(scope, it.error)
+                else -> TODO()
             }
-            syncMutex.unlock()
+            if (syncMutex.isLocked)
+                syncMutex.unlock()
         }
     }
 

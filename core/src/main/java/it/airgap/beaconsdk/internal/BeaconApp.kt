@@ -77,7 +77,9 @@ internal class BeaconApp(context: Context) {
 
         private var _instance: BeaconApp? = null
         val instance: BeaconApp
-            get() = _instance ?: failWithUninitialized(TAG)
+            get() {
+                return _instance ?: failWithUninitialized(TAG)
+            }
 
         fun create(context: Context) {
             _instance = BeaconApp(context)

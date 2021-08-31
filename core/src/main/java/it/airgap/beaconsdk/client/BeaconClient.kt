@@ -96,7 +96,9 @@ public class BeaconClient internal constructor(
                         is BeaconRequest -> Result.success(message)
                         else -> null
                     }
-                    is Failure -> Result.failure(BeaconException.from(it.error))
+                    is Failure -> {
+                        Result.failure(BeaconException.from(it.error))
+                    }
                 }
             }
 

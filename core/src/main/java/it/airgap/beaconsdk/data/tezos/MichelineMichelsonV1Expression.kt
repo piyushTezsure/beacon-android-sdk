@@ -43,19 +43,26 @@ public sealed class MichelineMichelsonV1Expression {
 
         private fun deserializeJsonObject(decoder: JsonDecoder, jsonObject: JsonObject): MichelineMichelsonV1Expression =
             when {
-                jsonObject.containsKey(MichelinePrimitiveInt.Field.INT) -> decoder.json.decodeFromJsonElement(MichelinePrimitiveInt.serializer(), jsonObject)
-                jsonObject.containsKey(MichelinePrimitiveString.Field.STRING) -> decoder.json.decodeFromJsonElement(MichelinePrimitiveString.serializer(), jsonObject)
-                jsonObject.containsKey(MichelinePrimitiveBytes.Field.BYTES) -> decoder.json.decodeFromJsonElement(MichelinePrimitiveBytes.serializer(), jsonObject)
-                jsonObject.containsKey(MichelineNode.Field.EXPRESSIONS) -> decoder.json.decodeFromJsonElement(MichelineNode.serializer(), jsonObject)
+                jsonObject.containsKey(MichelinePrimitiveInt.Field.INT) -> decoder.json.decodeFromJsonElement(
+                    MichelinePrimitiveInt.serializer(), jsonObject)
+                jsonObject.containsKey(MichelinePrimitiveString.Field.STRING) -> decoder.json.decodeFromJsonElement(
+                    MichelinePrimitiveString.serializer(), jsonObject)
+                jsonObject.containsKey(MichelinePrimitiveBytes.Field.BYTES) -> decoder.json.decodeFromJsonElement(
+                    MichelinePrimitiveBytes.serializer(), jsonObject)
+                jsonObject.containsKey(MichelineNode.Field.EXPRESSIONS) -> decoder.json.decodeFromJsonElement(
+                    MichelineNode.serializer(), jsonObject)
                 else -> decoder.json.decodeFromJsonElement(MichelinePrimitiveApplication.serializer(), jsonObject)
             }
 
         override fun serialize(encoder: Encoder, value: MichelineMichelsonV1Expression) {
             when (value) {
                 is MichelinePrimitiveInt -> encoder.encodeSerializableValue(MichelinePrimitiveInt.serializer(), value)
-                is MichelinePrimitiveString -> encoder.encodeSerializableValue(MichelinePrimitiveString.serializer(), value)
-                is MichelinePrimitiveBytes -> encoder.encodeSerializableValue(MichelinePrimitiveBytes.serializer(), value)
-                is MichelinePrimitiveApplication -> encoder.encodeSerializableValue(MichelinePrimitiveApplication.serializer(), value)
+                is MichelinePrimitiveString -> encoder.encodeSerializableValue(
+                    MichelinePrimitiveString.serializer(), value)
+                is MichelinePrimitiveBytes -> encoder.encodeSerializableValue(
+                    MichelinePrimitiveBytes.serializer(), value)
+                is MichelinePrimitiveApplication -> encoder.encodeSerializableValue(
+                    MichelinePrimitiveApplication.serializer(), value)
                 is MichelineNode -> encoder.encodeSerializableValue(MichelineNode.serializer(), value)
             }
         }
@@ -63,7 +70,7 @@ public sealed class MichelineMichelsonV1Expression {
 }
 
 @Serializable(with = MichelinePrimitiveInt.Serializer::class)
-public data class MichelinePrimitiveInt(public val int: Int) : MichelineMichelsonV1Expression() {
+public data class MichelinePrimitiveInt(public val int: Long) : MichelineMichelsonV1Expression() {
     public companion object {}
 
     internal object Field {
@@ -78,9 +85,11 @@ public data class MichelinePrimitiveInt(public val int: Int) : MichelineMichelso
             val jsonDecoder = decoder as? JsonDecoder ?: failWithExpectedJsonDecoder(decoder::class)
             val jsonElement = jsonDecoder.decodeJsonElement()
 
-            val primitive = jsonElement.jsonObject[Field.INT]?.jsonPrimitive ?: failWithMissingField(Field.INT)
+            val primitive = jsonElement.jsonObject[Field.INT]?.jsonPrimitive ?: failWithMissingField(
+                Field.INT
+            )
 
-            return MichelinePrimitiveInt(primitive.content.toInt())
+            return MichelinePrimitiveInt(primitive.content.toLong())
         }
 
         override fun serialize(encoder: Encoder, value: MichelinePrimitiveInt) {
@@ -143,7 +152,8 @@ public data class MichelineNode(public val expressions: List<MichelineMichelsonV
         }
 
         private fun deserializeJsonArray(decoder: JsonDecoder, jsonArray: JsonArray): MichelineNode {
-            val expressions = jsonArray.map { decoder.json.decodeFromJsonElement(MichelineMichelsonV1Expression.serializer(), it) }
+            val expressions = jsonArray.map { decoder.json.decodeFromJsonElement(
+                MichelineMichelsonV1Expression.serializer(), it) }
 
             return MichelineNode(expressions)
         }
@@ -156,7 +166,8 @@ public data class MichelineNode(public val expressions: List<MichelineMichelsonV
 
         override fun serialize(encoder: Encoder, value: MichelineNode) {
             val jsonEncoder = encoder as? JsonEncoder ?: failWithExpectedJsonEncoder(encoder::class)
-            val jsonArray = JsonArray(value.expressions.map { jsonEncoder.json.encodeToJsonElement(MichelineMichelsonV1Expression.serializer(), it) })
+            val jsonArray = JsonArray(value.expressions.map { jsonEncoder.json.encodeToJsonElement(
+                MichelineMichelsonV1Expression.serializer(), it) })
 
             jsonEncoder.encodeJsonElement(jsonArray)
         }

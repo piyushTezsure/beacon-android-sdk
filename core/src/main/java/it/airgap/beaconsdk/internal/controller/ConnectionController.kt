@@ -15,11 +15,14 @@ import kotlinx.coroutines.flow.merge
 
 internal class ConnectionController(private val transports: List<Transport>, private val serializer: Serializer) {
 
-    fun subscribe(): Flow<InternalResult<BeaconConnectionMessage>> =
-        transports
+    fun subscribe(): Flow<InternalResult<BeaconConnectionMessage>> {
+        return transports
             .map { it.subscribe() }
             .merge()
-            .map { BeaconConnectionMessage.fromInternalResult(it)}
+            .map {
+                BeaconConnectionMessage.fromInternalResult(it)
+            }
+    }
 
     suspend fun send(message: BeaconConnectionMessage): InternalResult<Unit> =
         flatTryResult {
@@ -35,18 +38,22 @@ internal class ConnectionController(private val transports: List<Transport>, pri
 
     private fun BeaconConnectionMessage.Companion.fromInternalResult(
         connectionMessage: InternalResult<ConnectionTransportMessage>
-    ): InternalResult<BeaconConnectionMessage> = connectionMessage.flatMap { message ->
-        val content = when (message) {
-            is SerializedConnectionMessage -> serializer.deserialize(message.content)
-            is BeaconConnectionMessage -> Success(message.content)
-        }
+    ): InternalResult<BeaconConnectionMessage> {
+        return connectionMessage.flatMap { message ->
+            val content = when (message) {
+                is SerializedConnectionMessage -> serializer.deserialize(message.content)
+                is BeaconConnectionMessage -> Success(message.content)
+            }
 
-        content.map { BeaconConnectionMessage(message.origin, it) }
+            content.map { BeaconConnectionMessage(message.origin, it) }
+        }
     }
 
-    private fun InternalResult<Unit>.concat(other: InternalResult<Unit>, connectionType: Connection.Type): InternalResult<Unit> =
-        when {
-            this is Success<Unit> && other is Success<Unit> -> Success()
+    private fun InternalResult<Unit>.concat(other: InternalResult<Unit>, connectionType: Connection.Type): InternalResult<Unit> {
+        return when {
+            this is Success<Unit> && other is Success<Unit> -> {
+                Success()
+            }
             this is Failure<Unit> && other is Success<Unit> -> Failure(ConnectionException.from(connectionType, error))
             this is Success<Unit> && other is Failure<Unit> -> Failure(ConnectionException.from(connectionType, other.error))
             this is Failure<Unit> && other is Failure<Unit> -> {
@@ -55,6 +62,7 @@ internal class ConnectionController(private val transports: List<Transport>, pri
             }
             else -> Failure()
         }
+    }
 
     private fun Throwable.concat(other: Throwable): Throwable? =
         when {

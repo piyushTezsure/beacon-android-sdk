@@ -1,5 +1,6 @@
 package it.airgap.beaconsdk.data.tezos
 
+import it.airgap.beaconsdk.data.tezos.MichelineMichelsonV1Expression
 import it.airgap.beaconsdk.internal.utils.failWithExpectedJsonDecoder
 import it.airgap.beaconsdk.internal.utils.failWithMissingField
 import kotlinx.serialization.KSerializer
